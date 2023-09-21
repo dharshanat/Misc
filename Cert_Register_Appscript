@@ -1,0 +1,22 @@
+function dropdown() {
+  var activeCell = SpreadsheetApp.getActiveRange();
+  var activerow = activeCell.getRow()
+  var activecol =  activeCell.getColumn()
+  var activevalue = activeCell.getValue()
+  var activesheet = activeCell.getSheet()
+
+  if(activesheet.getName()=="Register" && activerow>1 && activecol==2)
+  {
+    var worksheet = SpreadsheetApp.getActiveSpreadsheet();
+    var spreadsheet = worksheet.getSheetByName("MD-Certs")
+    var data = spreadsheet.getDataRange().getValues();
+    var list = data.filter(row=>row[0]==activevalue).map(row=>row[1])
+    var validation = SpreadsheetApp.newDataValidation().requireValueInList(list).setAllowInvalid(false).build()
+    activeCell.offset(0,1).setDataValidation(validation)
+  }
+  
+}
+
+function onEdit(){
+  dropdown()
+}
