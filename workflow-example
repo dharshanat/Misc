@@ -1,0 +1,163 @@
+#sample
+main:
+  steps:
+  - init:
+      assign:
+      - controlQuery: "CALL EXAMPLE_CTRL.ctl_src_extr_update_process();"
+      - target_grp1_Query: "CALL EXAMPLE_TRG.target_tables_grp1_refresh_process();"
+      - target_grp2_Query: "CALL EXAMPLE_TRG.target_tables_grp2_refresh_process();"
+      - target_grp3_Query: "CALL EXAMPLE_TRG.target_tables_grp3_refresh_process();"
+      - target_grp4_Query: "CALL EXAMPLE_TRG.target_tables_grp4_refresh_process();"
+      - target_grp5_Query: "CALL EXAMPLE_TRG.target_tables_grp5_refresh_process();"
+      - revenueQuery: "CALL EXAMPLE_exp_RES.exp_exp_revenue_rules_process();"
+      - expense_agov_Query: "CALL EXAMPLE_exp_RES.exp_exp_expense_agov_rules_process();"
+      - expense_fh_Query: "CALL EXAMPLE_exp_RES.exp_exp_expense_fh_rules_process();"
+      - expense_fl_Query: "CALL EXAMPLE_exp_RES.exp_exp_expense_fl_rules_process();"
+      - expense_ln_Query: "CALL EXAMPLE_exp_RES.exp_exp_expense_ln_rules_process();"
+      - expense_grp1_Query: "CALL EXAMPLE_exp_RES.exp_exp_expense_grp1_rules_process();"
+      - expense_grp2_Query: "CALL EXAMPLE_exp_RES.exp_exp_expense_grp2_rules_process();"
+      - expense_grp3_Query: "CALL EXAMPLE_exp_RES.exp_exp_expense_grp3_rules_process();"
+      - expense_grp4_Query: "CALL EXAMPLE_exp_RES.exp_exp_expense_grp4_rules_process();"
+      - results_1 : {}  
+      - results_2 : {}   
+      - project_id: ${sys.get_env("GOOGLE_CLOUD_PROJECT_ID")}
+  - ctl_src_extr_update_query:
+      call: googleapis.bigquery.v2.jobs.query
+      args:
+          projectId: ${project_id}
+          body:
+              query: ${controlQuery}
+              useLegacySql: false
+              timeoutMs: 200000 #200 seconds
+  - runParallelSteps_1:
+        parallel:
+          shared: [results_1]
+          branches:
+            - target_grp1_refresh:
+                steps:
+                - exp_target_grp1_rules_query:
+                    call: googleapis.bigquery.v2.jobs.query
+                    args:
+                        projectId: ${project_id}
+                        body:
+                            query: ${target_grp1_Query}
+                            useLegacySql: false
+                            timeoutMs: 200000 #200 seconds
+            - target_grp2_refresh:
+                steps:
+                - exp_target_grp2_rules_query:
+                    call: googleapis.bigquery.v2.jobs.query
+                    args:
+                        projectId: ${project_id}
+                        body:
+                            query: ${target_grp2_Query}
+                            useLegacySql: false
+                            timeoutMs: 200000 #200 seconds
+  - exp_target_grp3_rules_query:
+      call: googleapis.bigquery.v2.jobs.query
+      args:
+          projectId: ${project_id}
+          body:
+              query: ${target_grp3_Query}
+              useLegacySql: false
+              timeoutMs: 200000 #200 seconds
+  - exp_target_grp4_rules_query:
+      call: googleapis.bigquery.v2.jobs.query
+      args:
+          projectId: ${project_id}
+          body:
+              query: ${target_grp4_Query}
+              useLegacySql: false
+              timeoutMs: 200000 #200 seconds
+  - exp_target_grp5_rules_query:
+      call: googleapis.bigquery.v2.jobs.query
+      args:
+          projectId: ${project_id}
+          body:
+              query: ${target_grp5_Query}
+              useLegacySql: false
+              timeoutMs: 200000 #200 seconds
+  - exp_exp_revenue_rules_query:
+      call: googleapis.bigquery.v2.jobs.query
+      args:
+          projectId: ${project_id}
+          body:
+              query: ${revenueQuery}
+              useLegacySql: false
+              timeoutMs: 200000 #200 seconds
+  - runParallelSteps_2:
+        parallel:
+          shared: [results_2]
+          branches:
+            - expense_AGOV_rules:
+                steps:
+                - exp_exp_expense_agov_rules_query:
+                    call: googleapis.bigquery.v2.jobs.query
+                    args:
+                        projectId: ${project_id}
+                        body:
+                            query: ${expense_agov_Query}
+                            useLegacySql: false
+                            timeoutMs: 200000 #200 seconds
+            - expense_fh_rules:
+                steps:
+                - exp_exp_expense_fh_rules_query:
+                    call: googleapis.bigquery.v2.jobs.query
+                    args:
+                        projectId: ${project_id}
+                        body:
+                            query: ${expense_fh_Query}
+                            useLegacySql: false
+                            timeoutMs: 200000 #200 seconds
+            - expense_fl_rules:
+                steps:
+                - exp_exp_expense_fl_rules_query:
+                    call: googleapis.bigquery.v2.jobs.query
+                    args:
+                        projectId: ${project_id}
+                        body:
+                            query: ${expense_fl_Query}
+                            useLegacySql: false
+                            timeoutMs: 200000 #200 seconds
+            - expense_ln_rules:
+                steps:
+                - exp_exp_expense_ln_rules_query:
+                    call: googleapis.bigquery.v2.jobs.query
+                    args:
+                        projectId: ${project_id}
+                        body:
+                            query: ${expense_ln_Query}
+                            useLegacySql: false
+                            timeoutMs: 200000 #200 seconds
+  - exp_exp_expense_grp1_rules_query:
+      call: googleapis.bigquery.v2.jobs.query
+      args:
+          projectId: ${project_id}
+          body:
+              query: ${expense_grp1_Query}
+              useLegacySql: false
+              timeoutMs: 200000 #200 seconds
+  - exp_exp_expense_grp2_rules_query:
+      call: googleapis.bigquery.v2.jobs.query
+      args:
+          projectId: ${project_id}
+          body:
+              query: ${expense_grp2_Query}
+              useLegacySql: false
+              timeoutMs: 200000 #200 seconds
+  - exp_exp_expense_grp3_rules_query:
+      call: googleapis.bigquery.v2.jobs.query
+      args:
+          projectId: ${project_id}
+          body:
+              query: ${expense_grp3_Query}
+              useLegacySql: false
+              timeoutMs: 200000 #200 seconds
+  - exp_exp_expense_grp4_rules_query:
+      call: googleapis.bigquery.v2.jobs.query
+      args:
+          projectId: ${project_id}
+          body:
+              query: ${expense_grp4_Query}
+              useLegacySql: false
+              timeoutMs: 200000 #200 seconds
